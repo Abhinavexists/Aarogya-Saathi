@@ -70,3 +70,15 @@ To set up Aarogya Saathi locally, follow these steps:
 1. **Clone the repository**:  
    ```bash
    git clone https://github.com/your-username/Aarogya-Saathi.git
+   ```
+
+   ### Run the database migrations:
+   ```bash
+   python manage.py migrate
+   ```
+
+   ### Run the application:
+   
+   ```bash
+   python manage.py runserver
+   ```
