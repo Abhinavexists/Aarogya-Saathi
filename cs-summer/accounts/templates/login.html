@@ -1,0 +1,90 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Aarogya Saathi</title>
+    <link rel="stylesheet" href="https://link.storjshare.io/s/jv3igo3bfwmxiejbfkhqs2zavm6q/aarogya/styles.css?wrap=0">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">Aarogya Saathi</a>
+            <div class="nav-links">
+                <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="form-container">
+        <h2>Welcome Back</h2>
+        <p class="form-subtitle">Enter your credentials to access your account</p>
+        
+        <!-- Display messages if any -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="email" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" id="password" class="form-input" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Log In</button>
+        </form>
+        <p class="form-footer">
+            Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
+        </p>
+    </div>
+
+    <!-- JavaScript to handle redirect on successful login -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const successMessage = document.querySelector(".message.success");
+            if (successMessage) {
+                setTimeout(function() {
+                    window.location.href = "{% url 'chat' %}";
+                }, 2000);  // Redirect after 2 seconds
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Aarogya Saathi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

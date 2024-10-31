@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Aarogya Saathi</title>
+    <link rel="stylesheet" href="https://link.storjshare.io/s/jv3igo3bfwmxiejbfkhqs2zavm6q/aarogya/styles.css?wrap=0">
+    <style>
+        /* Styles for password requirements */
+        .password-requirements {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+        .password-requirements ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .password-requirements li {
+            color: red;
+        }
+        .password-requirements li.valid {
+            color: green;
+        }
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            color: #555;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">Aarogya Saathi</a>
+            <div class="nav-links">
+                <a href="login.html" class="btn btn-ghost">Log In</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Sign Up Form -->
+    <div class="form-container">
+        <h2>Create Account</h2>
+        <p class="form-subtitle">Join Aarogya Saathi for personalized health assistance</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="full_name" class="form-label">Full Name</label>
+                <input type="text" name="full_name" id="full_name" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="email" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" id="password" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password" class="form-label">Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirm-password" class="form-input" required>
+            </div>
+            
+            <!-- Password Requirements -->
+            <div class="password-requirements" id="password-requirements">
+                <span class="close-btn" onclick="document.getElementById('password-requirements').style.display='none'">×</span>
+                <p>Password should be at least 8 characters long and include:</p>
+                <ul>
+                    <li id="length" class="requirement">At least 8 characters</li>
+                    <li id="uppercase" class="requirement">At least one uppercase letter</li>
+                    <li id="lowercase" class="requirement">At least one lowercase letter</li>
+                    <li id="number" class="requirement">At least one number</li>
+                    <li id="special" class="requirement">At least one special character (@, $, !, %, *, ?, &)</li>
+                </ul>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+        </form>
+        <p class="form-footer">
+            Already have an account? <a href="login.html">Log in</a>
+        </p>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Aarogya Saathi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- JavaScript for password validation -->
+    <script>
+        const passwordInput = document.getElementById('password');
+        const requirementsBox = document.getElementById('password-requirements');
+        
+        passwordInput.addEventListener('focus', () => {
+            requirementsBox.style.display = 'block';
+        });
+
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+
+            // Check each requirement
+            const lengthRequirement = document.getElementById('length');
+            const uppercaseRequirement = document.getElementById('uppercase');
+            const lowercaseRequirement = document.getElementById('lowercase');
+            const numberRequirement = document.getElementById('number');
+            const specialRequirement = document.getElementById('special');
+
+            // 1. Length check
+            lengthRequirement.classList.toggle('valid', password.length >= 8);
+            lengthRequirement.classList.toggle('invalid', password.length < 8);
+
+            // 2. Uppercase letter check
+            uppercaseRequirement.classList.toggle('valid', /[A-Z]/.test(password));
+            uppercaseRequirement.classList.toggle('invalid', !/[A-Z]/.test(password));
+
+            // 3. Lowercase letter check
+            lowercaseRequirement.classList.toggle('valid', /[a-z]/.test(password));
+            lowercaseRequirement.classList.toggle('invalid', !/[a-z]/.test(password));
+
+            // 4. Number check
+            numberRequirement.classList.toggle('valid', /[0-9]/.test(password));
+            numberRequirement.classList.toggle('invalid', !/[0-9]/.test(password));
+
+            // 5. Special character check
+            specialRequirement.classList.toggle('valid', /[@$!%*?&]/.test(password));
+            specialRequirement.classList.toggle('invalid', !/[@$!%*?&]/.test(password));
+
+            // Hide requirements box if all conditions are met
+            if (password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password) && /[@$!%*?&]/.test(password)) {
+                requirementsBox.style.display = 'none';
+            } else {
+                requirementsBox.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

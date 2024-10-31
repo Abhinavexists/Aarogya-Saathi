@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Aarogya Saathi</title>
+    <link rel="stylesheet" href="https://link.storjshare.io/s/jv3igo3bfwmxiejbfkhqs2zavm6q/aarogya/styles.css?wrap=0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">Aarogya Saathi</a>
+            <div class="nav-links">
+                <span>Welcome, {{ user_name }}!</span>  <!-- Display user name -->
+            </div>
+        </div>
+    </nav>
+
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+            <div class="message">
+                <div class="message-content">
+                    Hello! I am Aarogya Saathi, your personal health assistant. How can I help you today?
+                </div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="query-input" placeholder="Type your health-related question..." class="form-input">
+            <button id="send-button" class="btn btn-primary">Send</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Aarogya Saathi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const apiKey = '2QXKYhkNBvcrTnd4wQeRlxKeDPSlbLLI';
+        const externalUserId = '2QXKYhkNBvcrTnd4wQeRlxKeDPSlbLLI';
+        const chatMessages = document.getElementById('chat-messages');
+        const input = document.getElementById('query-input');
+        const sendButton = document.getElementById('send-button');
+        
+        let sessionId = null;
+        let loading = false;
+
+        const createChatSession = async () => {
+            try {
+                const response = await fetch('https://api.on-demand.io/chat/v1/sessions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': apiKey
+                    },
+                    body: JSON.stringify({ pluginIds: [], externalUserId })
+                });
+                const data = await response.json();
+                sessionId = data.data ? data.data.id : null;
+                if (!sessionId) throw new Error('Session ID not received.');
+            } catch (error) {
+                console.error('Error creating chat session:', error);
+                alert("Failed to create chat session. Please try again.");
+            }
+        };
+
+        const submitQuery = async () => {
+            const query = input.value.trim();
+            if (!sessionId || !query) {
+                alert("Please enter a question.");
+                return;
+            }
+            
+            addMessage("Analyzing...", false, true);
+            input.value = '';
+            loading = true;
+            
+            try {
+                const response = await fetch(`https://api.on-demand.io/chat/v1/sessions/${sessionId}/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': apiKey
+                    },
+                    body: JSON.stringify({
+                        endpointId: 'predefined-openai-gpt4o',
+                        query,
+                        pluginIds: ['plugin-1712327325', 'plugin-1713962163', 'plugin-1729881043'],
+                        responseMode: 'sync',
+                    })
+                });
+
+                const data = await response.json();
+                const answer = data.data ? data.data.answer : "Sorry, there was an issue with the response.";
+                addMessage(query, true);
+                addMessage(formatResponse(answer));
+            } catch (error) {
+                console.error('Error submitting query:', error);
+                alert("There was an error. Please try again.");
+                addMessage("Error: Could not retrieve response. Please try again later.");
+            } finally {
+                loading = false;
+                removeLoadingMessage();
+            }
+        };
+
+        const addMessage = (text, isUser = false, isLoading = false) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : ''}`;
+            const content = isLoading ? `<div class="loading">${text}</div>` : `<div class="message-content">${text}</div>`;
+            messageDiv.innerHTML = content;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        const removeLoadingMessage = () => {
+            const loadingMessages = document.querySelectorAll('.loading');
+            loadingMessages.forEach(msg => msg.remove());
+        };
+
+        // Function to format the response text for better readability
+        const formatResponse = (text) => {
+            // Replace line breaks with <br> tags for new lines
+            let formattedText = text.replace(/\n/g, "<br>");
+            
+            // Apply bold formatting
+            formattedText = formattedText.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+            
+            // Convert numbered lists
+            formattedText = formattedText.replace(/(\d+)\.\s/g, "<br><strong>$1.</strong> ");
+
+            // Convert bullet points (using hyphens or asterisks)
+            formattedText = formattedText.replace(/[-*]\s/g, "<br>&bull; ");
+
+            return formattedText;
+        };
+
+        sendButton.addEventListener('click', submitQuery);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendButton.click();
+        });
+
+        createChatSession();
+    </script>
+</body>
+</html>
